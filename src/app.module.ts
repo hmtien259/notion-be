@@ -1,5 +1,3 @@
-import { mkdirSync } from "node:fs";
-import { dirname } from "node:path";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -19,17 +17,17 @@ import { DocumentsModule } from "./modules/documents/documents.module";
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const databasePath = configService.getOrThrow<string>("databasePath");
-        mkdirSync(dirname(databasePath), { recursive: true });
-
-        return {
-          type: "sqlite" as const,
-          database: databasePath,
-          autoLoadEntities: true,
-          synchronize: true,
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: "postgres" as const,
+        host: configService.getOrThrow<string>("database.host"),
+        port: configService.getOrThrow<number>("database.port"),
+        database: configService.getOrThrow<string>("database.name"),
+        username: configService.getOrThrow<string>("database.user"),
+        password: configService.getOrThrow<string>("database.password"),
+        ssl: configService.get<boolean>("database.ssl") ? { rejectUnauthorized: false } : false,
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
     UsersModule,
     WorkspacesModule,

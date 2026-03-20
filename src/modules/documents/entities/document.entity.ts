@@ -45,7 +45,7 @@ export class DocumentEntity {
   @Column({ type: "text" })
   updatedById!: string;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   archivedAt!: Date | null;
 
   @ManyToOne(() => WorkspaceEntity, (workspace) => workspace.documents, { onDelete: "CASCADE" })
